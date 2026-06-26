@@ -52,6 +52,17 @@ flowchart TD
 
 ---
 
+## Les quatre phases de livraison
+
+| Phase | Contenu | État |
+|-------|---------|------|
+| **Phase 1** — Acquisition | `serial_to_db.py` — lecture Arduino → InfluxDB | ✅ fait |
+| **Phase 2** — Vision | `image_segmenter.py` — segmentation foliaire YOLOv8 | 🔲 à faire |
+| **Phase 3** — Modélisation | LINTUL wrapper + Multi-Head IA + RAG | 🔲 à faire |
+| **Phase 4** — Interface web | Dashboard FastAPI + JS — état plante + 3 prédictions | 🔲 à faire |
+
+---
+
 ## Les trois modules du projet
 
 ### Module A — Acquisition IoT

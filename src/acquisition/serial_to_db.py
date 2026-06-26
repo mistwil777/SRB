@@ -67,7 +67,7 @@ def write_to_influx(write_api, payload: dict) -> None:
         .field("temp_air", float(payload["temp_air"]))
         .field("humidity_air", float(payload["humidity_air"]))
         .field("lux", float(payload["lux"]))
-        .time(int(payload["ts"]) * 10**6, WritePrecision.NANOSECONDS)
+        .time(int(payload["ts"]) * 10**6, WritePrecision.NS)
     )
     write_api.write(
         bucket=INFLUX_CFG["bucket"],
