@@ -12,28 +12,28 @@ L'objectif final : avoir un logiciel capable de dire, à partir des conditions d
 
 ```mermaid
 flowchart TD
-    subgraph TERRAIN — Balcon
-        P[Plante — pomme de terre] ;
-        C1[Capteur sol — humidité] ;
-        C2[Capteur air — DHT22] ;
-        C3[Capteur lumière — BH1750] ;
+    subgraph TERRAIN["Terrain - Balcon"]
+        P[Plante - pomme de terre] ;
+        C1[Capteur sol - humidite] ;
+        C2[Capteur air - DHT22] ;
+        C3[Capteur lumiere - BH1750] ;
         CAM[Appareil photo ou webcam] ;
     end
 
-    subgraph ARDUINO — Cerveau de terrain
+    subgraph ARDUINO["Arduino - Cerveau de terrain"]
         ARD[Arduino Mega 2560] ;
     end
 
-    subgraph PC — Traitement
-        SER[Script Python — serial_to_db] ;
-        VIS[Script Python — image_segmenter] ;
-        DB[(InfluxDB — base de données)] ;
+    subgraph PC["PC - Traitement"]
+        SER[Script Python - serial_to_db] ;
+        VIS[Script Python - image_segmenter] ;
+        DB[(InfluxDB - base de donnees)] ;
     end
 
-    subgraph IA — Modélisation
+    subgraph IA["IA - Modelisation"]
         LIN[Simulateur LINTUL-POTATO] ;
-        MH[Modèle Multi-Head] ;
-        RAG[Base de connaissances — RAG] ;
+        MH[Modele Multi-Head] ;
+        RAG[Base de connaissances RAG] ;
     end
 
     C1 -->|signal électrique| ARD ;
@@ -86,7 +86,7 @@ flowchart TD
 sequenceDiagram
     participant Sol as Capteur sol
     participant ARD as Arduino
-    participant PY as Python — PC
+    participant PY as Python - PC
     participant DB as InfluxDB
     participant IA as Modèle IA
 
