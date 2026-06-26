@@ -1,0 +1,18 @@
+# Phase 1 — Acquisition
+pyserial>=3.5
+influxdb-client>=1.44.0
+PyYAML>=6.0.2
+pydantic>=2.7.0
+
+# Phase 2 — Vision
+ultralytics>=8.2.0
+opencv-python-headless>=4.10.0
+
+# Phase 3 — Modélisation & RAG
+langchain>=0.2.0
+langchain-community>=0.2.0
+chromadb>=0.5.0
+dask[array]>=2024.6.0
+numpy>=1.26.0
+scikit-learn>=1.5.0
+torch>=2.3.0          # backend pour les têtes IA

@@ -1,0 +1,26 @@
+# Environnement Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Secrets
+.env
+*.env
+
+# Données brutes et modèles (trop lourds pour git)
+data/raw/
+data/processed/
+data/models/*.pt
+data/models/*.pth
+
+# Logs
+logs/
+
+# IDE
+.vscode/
+.idea/

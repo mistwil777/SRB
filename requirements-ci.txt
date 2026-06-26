@@ -1,0 +1,15 @@
+# Dépendances CI — sans torch/ultralytics/chromadb (trop lourds, pas testables sans GPU/hardware)
+pyserial>=3.5
+influxdb-client>=1.44.0
+PyYAML>=6.0.2
+pydantic>=2.7.0
+
+# Dev / test
+ruff>=0.4.0
+mypy>=1.10.0
+pytest>=8.2.0
+pytest-mock>=3.14.0
+pip-audit>=2.7.0
+
+# Stubs mypy
+types-PyYAML>=6.0.0

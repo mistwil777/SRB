@@ -1,0 +1,27 @@
+serial:
+  port: "COM3"              # à adapter selon l'OS (ex: /dev/ttyUSB0 sous Linux)
+  baudrate: 9600
+  timeout: 2                # secondes
+  reconnect_delay_base: 2   # secondes, backoff exponentiel
+  reconnect_delay_max: 60
+
+influxdb:
+  url: "http://localhost:8086"
+  token: ""                 # à renseigner via variable d'environnement INFLUXDB_TOKEN
+  org: "SRB"
+  bucket: "srb_sensors"
+
+vision:
+  model_path: "data/models/yolov8n-seg.pt"
+  image_dir: "data/raw/images"
+  processed_dir: "data/processed"
+  confidence_threshold: 0.5
+
+logging:
+  level: "INFO"
+  dir: "logs"
+  max_bytes: 10485760       # 10 MB
+  backup_count: 5
+
+acquisition:
+  interval_seconds: 900     # 15 minutes
