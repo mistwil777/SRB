@@ -1,0 +1,27 @@
+services:
+  influxdb:
+    image: influxdb:2.7
+    container_name: srb-influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: srb-admin-2026
+      DOCKER_INFLUXDB_INIT_ORG: SRB
+      DOCKER_INFLUXDB_INIT_BUCKET: srb_sensors
+      DOCKER_INFLUXDB_INIT_RETENTION: 0        # conservation illimitée
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: srb-local-dev-token-change-in-prod
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  influxdb-data:
+  influxdb-config:
