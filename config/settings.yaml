@@ -25,3 +25,18 @@ logging:
 
 acquisition:
   interval_seconds: 900     # 15 minutes
+
+# Continual learning — features du modèle IA
+# Passer une feature de "planned" à "active" suffit à l'activer dans le pipeline
+features:
+  active:
+    - soil_moisture           # Phase 1 — capteur sol capacitatif
+    - temp_air                # Phase 1 — DHT22
+    - humidity_air            # Phase 1 — DHT22
+    - lux                     # Phase 1 — BH1750
+  planned:
+    - ph                      # Phase 2 — quand le capteur sera branché
+    - ec                      # Phase 3 — conductivité électrique
+    - npk_n                   # Phase 3 — azote
+    - npk_p                   # Phase 3 — phosphore
+    - npk_k                   # Phase 3 — potassium

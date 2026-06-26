@@ -54,18 +54,18 @@ C'est là qu'intervient l'IA : apprendre l'**écart entre la prédiction physiqu
 
 ```mermaid
 flowchart TD
-    subgraph ENTRÉES
-        E1[Données capteurs — séries temporelles] ;
-        E2[Données génétiques — variété] ;
-        E3[Prédiction LINTUL] ;
+    subgraph ENTREES["Entrées"]
+        E1[Donnees capteurs - series temporelles] ;
+        E2[Donnees genetiques - variete] ;
+        E3[Prediction LINTUL] ;
     end
 
-    TRUNK[Tronc commun — Feature Extractor] ;
+    TRUNK[Tronc commun - Feature Extractor] ;
 
-    subgraph TÊTES DE PRÉDICTION
-        H1[Tête 1 — Rendement — régression] ;
-        H2[Tête 2 — Résistance — classification] ;
-        H3[Tête 3 — Goût — régression] ;
+    subgraph TETES["Tetes de prediction"]
+        H1[Tete 1 - Rendement - regression] ;
+        H2[Tete 2 - Resistance - classification] ;
+        H3[Tete 3 - Gout - regression] ;
     end
 
     E1 --> TRUNK ;
@@ -75,9 +75,9 @@ flowchart TD
     TRUNK --> H2 ;
     TRUNK --> H3 ;
 
-    H1 -->|en grammes| S1[Rendement estimé] ;
-    H2 -->|probabilité 0-1| S2[Probabilité de survie au stress] ;
-    H3 -->|score 1-10| S3[Score gustatif estimé] ;
+    H1 -->|en grammes| S1[Rendement estime] ;
+    H2 -->|probabilite 0-1| S2[Probabilite de survie au stress] ;
+    H3 -->|score 1-10| S3[Score gustatif estime] ;
 ```
 
 ### Le tronc commun (Feature Extractor)
@@ -219,3 +219,92 @@ import dask
 # Lancer 100 simulations en parallèle
 resultats = dask.compute(*[simuler(variete, conditions) for variete in varietes])
 ```
+
+---
+
+## 🌱 Philosophie : un modèle qui grandit
+
+### Résilience d'abord, richesse ensuite
+
+Le modèle démarre intentionnellement avec peu de capteurs et des données bruitées. Ce n'est pas une contrainte — c'est un choix de conception.
+
+Un modèle entraîné sur des signaux imparfaits apprend à **inférer** plutôt qu'à **lire**. Il développe une compréhension des patterns sous-jacents (stress hydrique, canicule, déficit lumineux) plutôt qu'une dépendance à des mesures précises. C'est ce qui le rend robuste dans le monde réel, où les capteurs tombent en panne, dérivent, ou simplement n'existent pas chez tout le monde.
+
+### La roadmap d'enrichissement
+
+```mermaid
+flowchart LR
+    P1["Phase 1\nSol + DHT22 + Lux\nfondation bruitee"] -->
+    P2["Phase 2\n+ pH\nchimie du sol"] -->
+    P3["Phase 3\n+ EC / NPK\nnutriments"] -->
+    P4["Phase n\n+ nouvelles varietes\n+ autres sites"] ;
+```
+
+À chaque phase, le modèle découvre une nouvelle dimension — sans oublier ce qu'il a appris avant.
+
+### Le problème de l'oubli catastrophique
+
+C'est le principal écueil du continual learning. Quand on ré-entraîne un réseau de neurones sur de nouvelles données, il tend à **écraser les anciens apprentissages** au profit des nouveaux. Un modèle qui a appris à prédire le rendement depuis 3 capteurs peut "oublier" ce savoir en apprenant le pH.
+
+Trois mécanismes de protection sont prévus dans l'architecture :
+
+**1. Entrées optionnelles avec masquage**
+
+Le tronc commun est dimensionné dès le départ pour la liste complète des features possibles. Les features absentes sont masquées à zéro — le modèle apprend à les ignorer proprement.
+
+```python
+# Vecteur d'entrée : features connues + features futures masquées
+input  = [0.45,  22.1,  58.0,  12450.0,  0.0,  0.0,  0.0,  0.0 ]
+mask   = [1,     1,     1,     1,        0,    0,    0,    0   ]
+#         sol    T°     HR     lux       pH    EC    NPK_N NPK_P
+
+# Quand le pH est branché : on passe son masque à 1, on fine-tune
+```
+
+Cela signifie que le modèle Phase 1 et le modèle Phase 3 partagent exactement la même architecture. On n'a pas à tout reconstruire.
+
+**2. EWC — Elastic Weight Consolidation**
+
+Quand on ajoute une nouvelle source de données, certains poids du réseau sont **protégés** (ceux qui ont le plus contribué aux prédictions passées) et d'autres sont libres de s'adapter. Le modèle garde sa mémoire fondatrice intacte.
+
+💡 **Analogie :** C'est comme apprendre une deuxième langue. Les zones du cerveau qui traitent la grammaire et la logique (le tronc commun) restent intactes. Seul le vocabulaire (les poids spécifiques à la nouvelle langue) change.
+
+**3. Fine-tuning séquentiel par tête**
+
+Lors de l'ajout d'un nouveau capteur, on ne ré-entraîne que les couches d'entrée et éventuellement une tête spécifique. Le tronc est gelé sauf si les nouvelles données apportent une information vraiment nouvelle.
+
+### Ce qu'on prépare dès maintenant dans la config
+
+```yaml
+# config/settings.yaml
+features:
+  active:
+    - soil_moisture   # Phase 1
+    - temp_air        # Phase 1
+    - humidity_air    # Phase 1
+    - lux             # Phase 1
+  planned:
+    - ph              # Phase 2 — quand le capteur sera branché
+    - ec              # Phase 3
+    - npk_n           # Phase 3
+    - npk_p           # Phase 3
+    - npk_k           # Phase 3
+```
+
+Basculer une feature de `planned` à `active` suffit à l'activer dans le pipeline. Le reste du code n'a pas à changer.
+
+### Tracer l'évolution du modèle dans le temps
+
+À chaque nouvelle phase d'entraînement, on documente dans `data/models/` :
+
+```
+data/models/
+├── v1_3capteurs_2026-06/       ← fondation
+│   ├── trunk.pt
+│   ├── head_yield.pt
+│   └── metrics.json            ← RMSE, ratio N_taste/N_yield, etc.
+├── v2_ph_2026-10/              ← après ajout pH
+│   └── ...
+```
+
+Cela permet de comparer les performances avant/après chaque enrichissement et de **revenir en arrière** si une nouvelle source de données dégrade les prédictions existantes.
