@@ -21,8 +21,10 @@ class _JsonFormatter(logging.Formatter):
         }
         if record.exc_info:
             payload["exc"] = self.formatException(record.exc_info)
+        # Clés réservées par LogRecord — ne pas écraser
+        _RESERVED = {"ts", "level", "module", "msg", "name", "message", "exc"}
         if hasattr(record, "extra"):
-            payload.update(record.extra)
+            payload.update({k: v for k, v in record.extra.items() if k not in _RESERVED})
         return json.dumps(payload, ensure_ascii=False)
 
 
